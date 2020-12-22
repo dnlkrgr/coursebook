@@ -1,4 +1,4 @@
-:- module(handlers, []).
+:- module(handlers,[]).
 
 
 :- use_module(library(http/http_dispatch)).
@@ -8,59 +8,101 @@
 :- ensure_loaded(courses).
 
 
-:- http_handler('/',                                    home(Method),                   [method(Method), methods([get])]).
-:- http_handler(root(completed),                        completed_handler(Method),      [method(Method), methods([get])]).
-:- http_handler(root(takeable),                         takeable_handler(Method),       [method(Method), methods([get])]).
-:- http_handler(root(university/MyUni),                 university(Method, MyUni),      [method(Method), methods([get])]).
-:- http_handler(root(university/MyUni/field/MyField),   field(Method, MyUni, MyField),  [method(Method), methods([get])]).
+
+:- http_handler(/, home_handler(Method), [method(Method), methods([get])]).
+:- http_handler(root(completed),
+                completed_handler(Method),
+                [method(Method), methods([get])]).
+:- http_handler(root(takeable),
+                takeable_handler(Method),
+                [method(Method), methods([get])]).
+:- http_handler(root(university/MyUni),
+                university_handler(Method, MyUni),
+                [method(Method), methods([get])]).
+:- http_handler(root(university/MyUni/field/MyField),
+                field_handler(Method, MyUni, MyField),
+                [method(Method), methods([get])]).
+:- http_handler(root(university/MyUni/field/MyField/subject/MySubject),   
+                subject_handler(Method, MyUni, MyField, MySubject),   
+                [method(Method), methods([get])]).
+:- http_handler(root(university/MyUni/field/MyField/subject/MySubject/course/MyCourse),   
+                course_handler(Method, MyUni, MyField, MySubject, MyCourse),   
+                [method(Method), methods([get])]).
 
 
 
-
-home(get, _Request) :-
+home_handler(get, _Request) :-
     reply_html_page(
         title('Coursebook'), 
         div([
-            % a(href('/completed'), p('Your Completed Courses Here')),
-            % a(href('/takeable'), p('Your Available Courses Here')),
+            h1('Listed Universities:'),
             \link_list(university, 'university/')
         ])
     ).
 
-university(get, MyUni, Request) :-
+university_handler(get, MyUni, Request) :-
     http_parameters(Request, []),
-    % atom_concat('university/', MyUni, Temp1),
     atom_concat(MyUni, '/field/', Temp2),
     reply_html_page(
         title(MyUni), 
         div([
-            h1(MyUni),
-            h3('Fields of Study:'),
+            h2(MyUni),
+            h1('Fields of Study:'),
             \link_list(field_of_study(MyUni), Temp2)
         ])
     ).
 
-% TODO: Name muss bei `course` als letztes stehen
-field(get, MyUni, MyField, Request) :-
-    http_parameters(Request, []),
-    atom_concat('university/', MyUni, Temp1),
-    atom_concat(MyField, '/', Temp2),
-
-    % atom_concat(Temp2, MyField, Temp3),
+field_handler(get, MyUni, MyField, _) :-
+    atom_concat(MyField, '/subject/', Path),
     reply_html_page(
-        title(MyUni), 
+        title(MyField), 
         div([
-            h1(MyField),
-            \course_list(course_name)
+            h3(MyUni),
+            h2(MyField),
+            h1('Subjects:'),
+            \link_list(subject(MyField), Path)
+        ])
+    ).
+
+subject_handler(get, MyUni, MyField, MySubject, _) :-
+    atom_concat(MySubject, '/course/', Path),
+    reply_html_page(
+        title(MySubject), 
+        div([
+            h4(MyUni),
+            h3(MyField),
+            h2(MySubject),
+            h1('Courses:'),
+            \link_list(uni_field_subject_to_course_name(MyUni, MyField, MySubject), Path)
+        ])
+    ).
+
+uni_field_subject_to_course_name(MyUni, MyField, MySubject, CourseName) :-
+    course(MyUni, MyField, _, MySubject, CourseName, _, _, _).
+
+course_handler(get, MyUni, MyField, MySubject, MyCourse, _) :-
+    atom_concat('Course - ', MyCourse, Title),
+    course(MyUni, MyField, Semester, MySubject, MyCourse, Requirements, Credits, CourseType),
+    reply_html_page(
+        title(Title), 
+        div([
+            h1('Course Info:'),
+            b(p('Semester:')),
+            p(Semester),
+            b(p('Requirements:')),
+            p(Requirements),
+            b(p('Credits:')),
+            p(Credits),
+            b(p('Course Type:')),
+            p(CourseType)
         ])
     ).
 
 
-
-link_list(Predicate, Path ) -->
+link_list(Predicate, Path) -->
 	{
       findall(X, call(Predicate, X), Todos),
-      maplist(as_a_li(Path ), Todos, ListTodos)
+      maplist(as_a_li(Path), Todos, ListTodos)
 	},
 	html(ul(ListTodos)).
 

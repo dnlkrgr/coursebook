@@ -1,4 +1,4 @@
-:- module(courses, [completed/1, is_takeable/1, university/1, field_of_study/2, course_name/1]).
+:- module(courses, [completed/1, is_takeable/1, university/1, field_of_study/2, course_name/1, course/8, subject/2]).
 
 
 :- (multifile prolog:message//1).
@@ -16,8 +16,8 @@ field_of_study(karlsruher_institute_of_technology, architecture).
 field_of_study(karlsruher_institute_of_technology, art_history).
 semester(winter_semester).
 
-vertiefungsfach(compiler_und_softwaretechnik).
-vertiefungsfach(kognitive_systeme_und_robotik).
+subject(computer_science_master, compiler_und_softwaretechnik).
+subject(computer_science_master, kognitive_systeme_und_robotik).
 
 completed(neuronale_netze).
 completed(neuronale_netze_praktikum).
@@ -61,7 +61,7 @@ studienstatus :-
 vertiefungsfaecher(VorlesungsMinPunkte, MinPunkteGesamt, MaxPunkteGesamt) :-
     university(University),
     field_of_study(University, FieldOfStudy),
-    vertiefungsfach(Vertiefungsfach),
+    subject(FieldOfStudy, Vertiefungsfach),
     findall(Punktzahl,
             course(University,
                    FieldOfStudy,
@@ -90,7 +90,7 @@ vertiefungsfaecher(VorlesungsMinPunkte, MinPunkteGesamt, MaxPunkteGesamt) :-
 
 
 genug_vertiefungsfaecher(Min, Max) :-
-    findall(Course, vertiefungsfach(Course), Vertiefungsfaecher),
+    findall(Course, subject(_, Course), Vertiefungsfaecher),
     length(Vertiefungsfaecher, L),
     print_message(error, vertiefungsfaecher-L-Min-Max),
     L>=Min,

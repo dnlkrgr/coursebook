@@ -17,7 +17,6 @@
 % and the standard handler dispatcher
 :- use_module(library(http/http_dispatch)).
 
-:- ensure_loaded(html_handlers).
 :- ensure_loaded(handlers).
 
 
