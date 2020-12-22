@@ -1,3 +1,6 @@
+:- module(courses, [completed/1, is_takeable/1, university/1, field_of_study/2, course_name/1]).
+
+
 :- (multifile prolog:message//1).
 
 % - nur die Kurse zum Studiengang anzeigen
@@ -6,7 +9,11 @@
 
 % TODO: vllt auch noch Pruefungsordnung
 university(karlsruher_institute_of_technology).
-field_of_study(computer_science_master).
+
+field_of_study(karlsruher_institute_of_technology, computer_science_master).
+field_of_study(karlsruher_institute_of_technology, civil_engineering).
+field_of_study(karlsruher_institute_of_technology, architecture).
+field_of_study(karlsruher_institute_of_technology, art_history).
 semester(winter_semester).
 
 vertiefungsfach(compiler_und_softwaretechnik).
@@ -35,7 +42,11 @@ course(karlsruher_institute_of_technology, computer_science_master, _, sprache, 
 course(karlsruher_institute_of_technology, computer_science_master, _, sprache, japanisch, [], 2, schluesselqualikation).
 course(karlsruher_institute_of_technology, computer_science_master, winter_semester, recht, urheberrecht, [], 3, ergaenzungsfach).
 course(karlsruher_institute_of_technology, computer_science_master, winter_semester, recht, markenrecht, [], 3, ergaenzungsfach).
-course(karlsruher_institute_of_technology, computer_science_master, sommer_semester, patentrecht, recht, [], 3, ergaenzungsfach).
+course(karlsruher_institute_of_technology, computer_science_master, sommer_semester, recht, patentrecht, [], 3, ergaenzungsfach).
+
+
+course_name(N) :-
+    course(_, _, _, _, N, _, _, _).
 
 % RULES
 studienstatus :-
@@ -49,7 +60,7 @@ studienstatus :-
 
 vertiefungsfaecher(VorlesungsMinPunkte, MinPunkteGesamt, MaxPunkteGesamt) :-
     university(University),
-    field_of_study(FieldOfStudy),
+    field_of_study(University, FieldOfStudy),
     vertiefungsfach(Vertiefungsfach),
     findall(Punktzahl,
             course(University,
@@ -105,7 +116,7 @@ randbedingung(KursTyp, N1, N2) :-
 
 my_course(Semester, Course, Prerequisites, Credits, CourseType) :-
     university(University),
-    field_of_study(FieldOfStudy),
+    field_of_study(University, FieldOfStudy),
     course(University,
            FieldOfStudy,
            Semester,
