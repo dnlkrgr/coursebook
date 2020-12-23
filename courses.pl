@@ -1,9 +1,19 @@
-:- module(courses, [completed/1, is_takeable/1, university/1, field_of_study/2, course_name/1, course/8, subject/2]).
+:- module(courses, [completed/1, is_available/1, university/1, field_of_study/2, course_name/1, course/8, subject/2, assert_completed/1]).
 
+
+:- use_module(library(persistency)).
+
+:- persistent completed(course_name:atom).
+
+:- initialization(init).
+
+init:-
+  absolute_file_name('coursebook.db', File, [access(write)]),
+  db_attach(File, []).
 
 :- (multifile prolog:message//1).
 
-% - nur die Kurse zum Studiengang anzeigen
+
 
 % TODO: Praktika und Seminare zusammen duerfen nicht mehr als 18 Punkte sein
 
@@ -19,13 +29,6 @@ semester(winter_semester).
 subject(computer_science_master, compiler_und_softwaretechnik).
 subject(computer_science_master, kognitive_systeme_und_robotik).
 
-completed(neuronale_netze).
-completed(neuronale_netze_praktikum).
-completed(neuronale_netze_seminar).
-completed(sicherheit).
-completed(kognitive_systeme).
-completed(telematik).
-completed(mensch_maschine_interaktion).
 
 
 % UNI STUFF
@@ -92,7 +95,6 @@ vertiefungsfaecher(VorlesungsMinPunkte, MinPunkteGesamt, MaxPunkteGesamt) :-
 genug_vertiefungsfaecher(Min, Max) :-
     findall(Course, subject(_, Course), Vertiefungsfaecher),
     length(Vertiefungsfaecher, L),
-    print_message(error, vertiefungsfaecher-L-Min-Max),
     L>=Min,
     L=<Max.
 
@@ -101,7 +103,6 @@ genug_stammmodule(Min, Max) :-
             completed_course(Course, _, stammmodul),
             Stammmodule),
     length(Stammmodule, L),
-    print_message(error, stammmodule-L-Min-Max),
     L>=Min,
     L=<Max.
 
@@ -110,57 +111,30 @@ randbedingung(KursTyp, N1, N2) :-
             completed_course(_, Punkte, KursTyp),
             Punktzahlen),
     sum_list(Punktzahlen, Summe),
-    print_message(error, KursTyp-Summe-N1-N2),
     Summe>=N1,
     Summe=<N2.
 
-my_course(Semester, Course, Prerequisites, Credits, CourseType) :-
+my_course(Semester, CourseName, Prerequisites, Credits, CourseType) :-
     university(University),
     field_of_study(University, FieldOfStudy),
     course(University,
            FieldOfStudy,
            Semester,
            _,
-           Course,
+           CourseName,
            Prerequisites,
            Credits,
            CourseType).
 
-completed_course(Course, Credits, CourseType) :-
-    my_course(_, Course, _, Credits, CourseType),
-    completed(Course).
+completed_course(CourseName, Credits, CourseType) :-
+    my_course(_, CourseName, _, Credits, CourseType),
+    completed(CourseName).
 
 % ein Course ist belegbar:
 % - falls er nicht schon completed worden ist
 % - falls alle Voraussetzungen Kurse sind
 % - und diese completed wurden
-is_takeable(Course) :-
+is_available(Course) :-
     my_course(_, Course, Prerequisites, _, _),
     \+ completed(Course),
     forall(member(X, Prerequisites), completed(X)).
-
-
-prolog:message(KursTyp-L-Min-_) -->
-    { L<Min,
-      Rest is Min-L
-    },
-    ['Zu wenige Punkte in ~w; ~d fehlen noch'-[KursTyp, Rest]].
-prolog:message(KursTyp-L-_-Max) -->
-    { L>Max,
-      Rest is L-Max
-    },
-    ['Zu viele Punkte in ~w; ~d zu viel'-[KursTyp, Rest]].
-prolog:message(KursTyp-Summe-N1-_) -->
-    { Summe<N1,
-      Rest is N1-Summe
-    },
-    ['Zu wenige Punkte in ~w; ~d Punkte fehlen noch'-[KursTyp, Rest]].
-prolog:message(KursTyp-Summe-_-N2) -->
-    { Summe>N2,
-      Rest is Summe-N2
-    },
-    ['Zu viele Punkte in ~w; ~d Punkte zu viel'-[KursTyp, Rest]].
-prolog:message(_-_-_-_) -->
-    [].
-prolog:message(_-_) -->
-    [].
