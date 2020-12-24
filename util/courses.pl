@@ -8,7 +8,7 @@
 :- initialization(init).
 
 init:-
-  absolute_file_name('coursebook.db', File, [access(write)]),
+  absolute_file_name('../data/coursebook.db', File, [access(write)]),
   db_attach(File, []).
 
 :- (multifile prolog:message//1).
