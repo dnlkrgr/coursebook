@@ -13,7 +13,7 @@
 
 
 field_handler(get, MyUni, MyField, Request) :-
-    check_if_signed_in(Request),
+    check_if_signed_in(Request, _),
     atom_concat(MyField, '/subject/', Path),
     reply_html_page(
         title(MyField), 

@@ -15,7 +15,7 @@
                 [method(Method), methods([get, post])]).
 
 course_handler(get, MyUni, MyField, MySubject, CourseName, Request) :-
-    check_if_signed_in(Request),
+    check_if_signed_in(Request, _),
     atom_concat('Course - ', CourseName, Title),
     course(MyUni, MyField, Semester, MySubject, CourseName, Requirements, Credits, CourseType),
     reply_html_page(
@@ -34,9 +34,10 @@ course_handler(get, MyUni, MyField, MySubject, CourseName, Request) :-
         ])
     ).
 
-course_handler(post, _, _, _, CourseName, _) :-
-    \+ completed(CourseName),
-    assert_completed(CourseName),
+course_handler(post, _, _, _, CourseName, Request) :-
+    check_if_signed_in(Request, User),
+    \+ completed(User, CourseName),
+    assert_completed(User, CourseName),
     http_redirect(moved, '/', _).
 course_handler(post, _, _, _, _, _) :-
     http_redirect(moved, '/', _).

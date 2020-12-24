@@ -14,12 +14,12 @@
 
 
 completed_handler(get, Request) :-
-    check_if_signed_in(Request),
+    check_if_signed_in(Request, User),
     reply_html_page(
         title('Completed Courses'), 
         div([
             p('Your Completed Courses:'),
-            \course_list(completed)
+            \course_list(completed(User))
         ])
     ).
 

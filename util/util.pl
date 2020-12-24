@@ -1,12 +1,12 @@
-:- module(util, [check_if_signed_in/1, link_list/4, as_a_li/3, as_li/2, uni_field_subject_to_course_name/4]).
+:- module(util, [check_if_signed_in/2, link_list/4, as_a_li/3, as_li/2, uni_field_subject_to_course_name/4]).
 
 :- use_module(library(http/http_server)).
 :- use_module(library(http/http_authenticate)).
 
 :- use_module('../util/courses').
 
-check_if_signed_in(Request) :-
-    http_authenticate(basic(passwd), Request, _) 
+check_if_signed_in(Request, User) :-
+    http_authenticate(basic(passwd), Request, [User | _]) 
     ; http_redirect(moved, root(signup), _).
 
 

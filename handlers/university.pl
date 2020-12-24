@@ -13,7 +13,7 @@
 
 
 university_handler(get, MyUni, Request) :-
-    check_if_signed_in(Request),
+    check_if_signed_in(Request, _),
     http_parameters(Request, []),
     atom_concat(MyUni, '/field/', Temp2),
     reply_html_page(

@@ -13,7 +13,7 @@
 
 
 subject_handler(get, MyUni, MyField, MySubject, Request) :-
-    check_if_signed_in(Request),
+    check_if_signed_in(Request, _),
     atom_concat(MySubject, '/course/', Path),
     reply_html_page(
         title(MySubject), 

@@ -10,7 +10,7 @@
 :- http_handler(/, home_handler(Method), [method(Method), methods([get])]).
 
 home_handler(get, Request) :-
-    check_if_signed_in(Request),
+    check_if_signed_in(Request, _),
     reply_html_page(
         title('Coursebook'), 
         div([

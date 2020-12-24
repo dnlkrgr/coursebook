@@ -24,11 +24,13 @@ signup_handler(get, _) :-
                 input([value('Submit'), type(submit)])])
         ])
     ).
+% TODO: check if username exists already
 signup_handler(post, Request) :-
     http_parameters(Request, [user_name(Username, []), password(InputPassword, [])]),
     crypt(InputPassword, EncPassword),
     string_codes(Password, EncPassword),
     FilePath = passwd,
     http_read_passwd_file(FilePath, Data),
+    \+ member(passwd(Username, Password, []), Data),
     http_write_passwd_file(FilePath, [passwd(Username, Password, []) | Data]),
     http_redirect(moved, root(signin), _).

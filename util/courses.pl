@@ -1,9 +1,7 @@
-:- module(courses, [completed/1, is_available/1, university/1, field_of_study/2, course_name/1, course/8, subject/2, assert_completed/1]).
+:- module(courses, [completed/2, assert_completed/2, university/1, field_of_study/2, subject/2, course/8]).
 
 
 :- use_module(library(persistency)).
-
-:- persistent completed(course_name:atom).
 
 :- initialization(init).
 
@@ -11,8 +9,7 @@ init:-
   absolute_file_name('../data/coursebook.db', File, [access(write)]),
   db_attach(File, []).
 
-:- (multifile prolog:message//1).
-
+:- persistent completed(user_name:atom, course_name:atom).
 
 
 % TODO: Praktika und Seminare zusammen duerfen nicht mehr als 18 Punkte sein
@@ -20,11 +17,13 @@ init:-
 % TODO: vllt auch noch Pruefungsordnung
 university(karlsruher_institute_of_technology).
 
+
 field_of_study(karlsruher_institute_of_technology, computer_science_master).
 field_of_study(karlsruher_institute_of_technology, civil_engineering).
 field_of_study(karlsruher_institute_of_technology, architecture).
 field_of_study(karlsruher_institute_of_technology, art_history).
 semester(winter_semester).
+
 
 subject(computer_science_master, compiler_und_softwaretechnik).
 subject(computer_science_master, kognitive_systeme_und_robotik).
@@ -47,94 +46,68 @@ course(karlsruher_institute_of_technology, computer_science_master, winter_semes
 course(karlsruher_institute_of_technology, computer_science_master, winter_semester, recht, markenrecht, [], 3, ergaenzungsfach).
 course(karlsruher_institute_of_technology, computer_science_master, sommer_semester, recht, patentrecht, [], 3, ergaenzungsfach).
 
+% course_name(N) :-
+%     course(_, _, _, _, N, _, _, _).
 
-course_name(N) :-
-    course(_, _, _, _, N, _, _, _).
+% % RULES
+% studienstatus :-
+%     genug_vertiefungsfaecher(2, 2),
+%     genug_stammmodule(4, 4),
+%     randbedingung(praktikum, 6, 15),
+%     randbedingung(seminar, 3, 12),
+%     randbedingung(ergaenzungsfach, 9, 18),
+%     randbedingung(schluesselqualikation, 2, 6),
+%     vertiefungsfaecher(10, 15, 52).
 
-% RULES
-studienstatus :-
-    genug_vertiefungsfaecher(2, 2),
-    genug_stammmodule(4, 4),
-    randbedingung(praktikum, 6, 15),
-    randbedingung(seminar, 3, 12),
-    randbedingung(ergaenzungsfach, 9, 18),
-    randbedingung(schluesselqualikation, 2, 6),
-    vertiefungsfaecher(10, 15, 52).
-
-vertiefungsfaecher(VorlesungsMinPunkte, MinPunkteGesamt, MaxPunkteGesamt) :-
-    university(University),
-    field_of_study(University, FieldOfStudy),
-    subject(FieldOfStudy, Vertiefungsfach),
-    findall(Punktzahl,
-            course(University,
-                   FieldOfStudy,
-                   _,
-                   _,
-                   Vertiefungsfach,
-                   _,
-                   Punktzahl,
-                   _),
-            Punktzahlen),
-    sum_list(Punktzahlen, PunktzahlGesamt),
-    PunktzahlGesamt>=MinPunkteGesamt,
-    PunktzahlGesamt=<MaxPunkteGesamt,
-    findall(Punktzahl,
-            course(University,
-                   FieldOfStudy,
-                   _,
-                   _,
-                   Vertiefungsfach,
-                   _,
-                   Punktzahl,
-                   vorlesung),
-            VorlesungsPunktzahlen),
-    sum_list(VorlesungsPunktzahlen, VorlesungsPunktzahlGesamt),
-    VorlesungsPunktzahlGesamt>=VorlesungsMinPunkte.
+% vertiefungsfaecher(VorlesungsMinPunkte, MinPunkteGesamt, MaxPunkteGesamt) :-
+%     university(University),
+%     field_of_study(University, FieldOfStudy),
+%     subject(FieldOfStudy, Vertiefungsfach),
+%     findall(Punktzahl,
+%             course(University,
+%                    FieldOfStudy,
+%                    _,
+%                    _,
+%                    Vertiefungsfach,
+%                    _,
+%                    Punktzahl,
+%                    _),
+%             Punktzahlen),
+%     sum_list(Punktzahlen, PunktzahlGesamt),
+%     PunktzahlGesamt>=MinPunkteGesamt,
+%     PunktzahlGesamt=<MaxPunkteGesamt,
+%     findall(Punktzahl,
+%             course(University,
+%                    FieldOfStudy,
+%                    _,
+%                    _,
+%                    Vertiefungsfach,
+%                    _,
+%                    Punktzahl,
+%                    vorlesung),
+%             VorlesungsPunktzahlen),
+%     sum_list(VorlesungsPunktzahlen, VorlesungsPunktzahlGesamt),
+%     VorlesungsPunktzahlGesamt>=VorlesungsMinPunkte.
 
 
-genug_vertiefungsfaecher(Min, Max) :-
-    findall(Course, subject(_, Course), Vertiefungsfaecher),
-    length(Vertiefungsfaecher, L),
-    L>=Min,
-    L=<Max.
+% genug_vertiefungsfaecher(Min, Max) :-
+%     findall(Course, subject(_, Course), Vertiefungsfaecher),
+%     length(Vertiefungsfaecher, L),
+%     L>=Min,
+%     L=<Max.
 
-genug_stammmodule(Min, Max) :-
-    findall(Course,
-            completed_course(Course, _, stammmodul),
-            Stammmodule),
-    length(Stammmodule, L),
-    L>=Min,
-    L=<Max.
+% genug_stammmodule(Min, Max) :-
+%     findall(Course,
+%             completed_course(Course, _, stammmodul),
+%             Stammmodule),
+%     length(Stammmodule, L),
+%     L>=Min,
+%     L=<Max.
 
-randbedingung(KursTyp, N1, N2) :-
-    findall(Punkte,
-            completed_course(_, Punkte, KursTyp),
-            Punktzahlen),
-    sum_list(Punktzahlen, Summe),
-    Summe>=N1,
-    Summe=<N2.
-
-my_course(Semester, CourseName, Prerequisites, Credits, CourseType) :-
-    university(University),
-    field_of_study(University, FieldOfStudy),
-    course(University,
-           FieldOfStudy,
-           Semester,
-           _,
-           CourseName,
-           Prerequisites,
-           Credits,
-           CourseType).
-
-completed_course(CourseName, Credits, CourseType) :-
-    my_course(_, CourseName, _, Credits, CourseType),
-    completed(CourseName).
-
-% ein Course ist belegbar:
-% - falls er nicht schon completed worden ist
-% - falls alle Voraussetzungen Kurse sind
-% - und diese completed wurden
-is_available(Course) :-
-    my_course(_, Course, Prerequisites, _, _),
-    \+ completed(Course),
-    forall(member(X, Prerequisites), completed(X)).
+% randbedingung(KursTyp, N1, N2) :-
+%     findall(Punkte,
+%             completed_course(_, Punkte, KursTyp),
+%             Punktzahlen),
+%     sum_list(Punktzahlen, Summe),
+%     Summe>=N1,
+%     Summe=<N2.
