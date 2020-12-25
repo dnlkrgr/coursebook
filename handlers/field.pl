@@ -9,7 +9,7 @@
 
 :- http_handler(root(university/MyUni/field/MyField),
                 field_handler(Method, MyUni, MyField),
-                [method(Method), methods([get])]).
+                [method(Method), methods([get, post])]).
 
 
 field_handler(get, MyUni, MyField, Request) :-
@@ -21,6 +21,15 @@ field_handler(get, MyUni, MyField, Request) :-
             h3(MyUni),
             h2(MyField),
             h1('Subjects:'),
-            \link_list(subject(MyField), Path)
+            \link_list(subject(MyField), Path),
+            form([method('post')], [input([value('Set this as my field'), type(submit)])])
         ])
     ).
+
+field_handler(post, _, MyField, Request) :-
+    check_if_signed_in(Request, User),
+    \+ has_field(User, MyField),
+    assert_has_field(User, MyField),
+    http_redirect(moved, '/', _).
+field_handler(post, _, _, _) :-
+    http_redirect(moved, '/', _).

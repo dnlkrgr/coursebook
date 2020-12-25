@@ -9,7 +9,7 @@
 
 :- http_handler(root(university/MyUni/field/MyField/subject/MySubject),
                 subject_handler(Method, MyUni, MyField, MySubject),
-                [method(Method), methods([get])]).
+                [method(Method), methods([get, post])]).
 
 
 subject_handler(get, MyUni, MyField, MySubject, Request) :-
@@ -22,7 +22,16 @@ subject_handler(get, MyUni, MyField, MySubject, Request) :-
             h3(MyField),
             h2(MySubject),
             h1('Courses:'),
-            \link_list(uni_field_subject_to_course_name(MyUni, MyField, MySubject), Path)
+            \link_list(uni_field_subject_to_course_name(MyUni, MyField, MySubject), Path),
+            form([method('post')], [input([value('Set this as my subject'), type(submit)])])
         ])
     ).
+
+subject_handler(post, _, _, MySubject, Request) :-
+    check_if_signed_in(Request, User),
+    \+ has_subject(User, MySubject),
+    assert_has_subject(User, MySubject),
+    http_redirect(moved, '/', _).
+subject_handler(post, _, _, _, _) :-
+    http_redirect(moved, '/', _).
 

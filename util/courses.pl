@@ -1,4 +1,4 @@
-:- module(courses, [completed/2, assert_completed/2, university/1, field_of_study/2, subject/2, course/8]).
+:- module(courses, [has_subject/2, assert_has_subject/2, has_field/2, assert_has_field/2, completed/2, assert_completed/2, goes_to/2, assert_goes_to/2, university/1, field_of_study/2, subject/2, course/8]).
 
 
 :- use_module(library(persistency)).
@@ -10,6 +10,12 @@ init:-
   db_attach(File, []).
 
 :- persistent completed(user_name:atom, course_name:atom).
+
+:- persistent goes_to(user_name:atom, university:atom).
+
+:- persistent has_field(user_name:atom, field:atom).
+
+:- persistent has_subject(user_name:atom, subject:atom).
 
 
 % TODO: Praktika und Seminare zusammen duerfen nicht mehr als 18 Punkte sein

@@ -14,6 +14,8 @@
 
 
 signin_handler(get, Request) :-
-    (http_authenticate(basic(passwd), Request, _) 
-    ; throw(http_reply(authorise(basic, _)))),
+    http_authenticate(basic(passwd), Request, _),
+    http_redirect(moved, '/', _).
+signin_handler(get, _) :-
+    throw(http_reply(authorise(basic, _))),
     http_redirect(moved, '/', _).

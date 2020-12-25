@@ -9,7 +9,7 @@
 
 :- http_handler(root(university/MyUni),
                 university_handler(Method, MyUni),
-                [method(Method), methods([get])]).
+                [method(Method), methods([get, post])]).
 
 
 university_handler(get, MyUni, Request) :-
@@ -21,6 +21,15 @@ university_handler(get, MyUni, Request) :-
         div([
             h2(MyUni),
             h1('Fields of Study:'),
-            \link_list(field_of_study(MyUni), Temp2)
+            \link_list(field_of_study(MyUni), Temp2),
+            form([method('post')], [input([value('Set this as my university'), type(submit)])])
         ])
     ).
+
+university_handler(post, MyUni, Request) :-
+    check_if_signed_in(Request, User),
+    \+ goes_to(User, MyUni),
+    assert_goes_to(User, MyUni),
+    http_redirect(moved, '/', _).
+university_handler(post, _, _) :-
+    http_redirect(moved, '/', _).
