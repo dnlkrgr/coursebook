@@ -20,11 +20,11 @@ university_handler(get, MyUni, Request) :-
         title(MyUni), 
         div([
             h2(MyUni),
+            form([method('post')], [input([value('Set this as my university'), type(submit)])]),
             h1('Fields of Study:'),
-            \link_list(field_of_study(MyUni), Temp2),
-            form([method('post')], [input([value('Set this as my university'), type(submit)])])
+            \link_list(field_of_study(MyUni), Temp2)
         ])
-    ).
+    ). 
 
 university_handler(post, MyUni, Request) :-
     check_if_signed_in(Request, User),

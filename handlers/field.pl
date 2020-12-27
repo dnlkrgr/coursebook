@@ -20,9 +20,9 @@ field_handler(get, MyUni, MyField, Request) :-
         div([
             h3(MyUni),
             h2(MyField),
+            form([method('post')], [input([value('Set this as my field'), type(submit)])]),
             h1('Subjects:'),
-            \link_list(subject(MyField), Path),
-            form([method('post')], [input([value('Set this as my field'), type(submit)])])
+            \link_list(subject(MyField), Path)
         ])
     ).
 

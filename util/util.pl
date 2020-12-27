@@ -3,10 +3,10 @@
 :- use_module(library(http/http_server)).
 :- use_module(library(http/http_authenticate)).
 
-:- use_module('../util/courses').
+:- use_module(courses).
 
-check_if_signed_in(Request, User) :- http_authenticate(basic(passwd), Request, [User | _]).
-check_if_signed_in(_, _) :- http_redirect(moved, root(signup), _).
+check_if_signed_in(Request, User)   :- http_authenticate(basic(passwd), Request, [User | _]).
+check_if_signed_in(_, _)            :- http_redirect(moved, root(signup), _).
 
 
 link_list(Predicate, Path) -->

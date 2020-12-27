@@ -19,8 +19,8 @@ signup_handler(get, _) :-
             a(href('/signin'), p('Sign In')),
             h1('Sign Up'),
             form([method('post')], 
-                [input([name(user_name), type(text)]), 
-                input([name(password), type(password)]), 
+                [p('Username'), input([name(user_name), type(text)]), 
+                p('Password'), input([name(password), type(password)]), 
                 input([value('Submit'), type(submit)])])
         ])
     ).

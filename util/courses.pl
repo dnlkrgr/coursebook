@@ -1,4 +1,4 @@
-:- module(courses, [has_subject/2, assert_has_subject/2, has_field/2, assert_has_field/2, completed/2, assert_completed/2, goes_to/2, assert_goes_to/2, university/1, field_of_study/2, subject/2, course/8]).
+:- module(courses, [assert_university/1, has_subject/2, assert_has_subject/2, has_field/2, assert_has_field/2, completed/2, assert_completed/2, goes_to/2, assert_goes_to/2, university/1, field_of_study/2, subject/2, course/8, course_name/1]).
 
 
 :- use_module(library(persistency)).
@@ -16,6 +16,8 @@ init:-
 :- persistent has_field(user_name:atom, field:atom).
 
 :- persistent has_subject(user_name:atom, subject:atom).
+
+:- persistent university(university_name:atom).
 
 
 % TODO: Praktika und Seminare zusammen duerfen nicht mehr als 18 Punkte sein
@@ -52,8 +54,8 @@ course(karlsruher_institute_of_technology, computer_science_master, winter_semes
 course(karlsruher_institute_of_technology, computer_science_master, winter_semester, recht, markenrecht, [], 3, ergaenzungsfach).
 course(karlsruher_institute_of_technology, computer_science_master, sommer_semester, recht, patentrecht, [], 3, ergaenzungsfach).
 
-% course_name(N) :-
-%     course(_, _, _, _, N, _, _, _).
+course_name(N) :-
+    course(_, _, _, _, N, _, _, _).
 
 % % RULES
 % studienstatus :-
