@@ -1,7 +1,6 @@
 :- module(home_handler,[]).
 
 :- use_module(library(http/http_server)).
-:- use_module(library(http/http_authenticate)).
 
 :- use_module('../util/courses').
 :- use_module('../util/util').

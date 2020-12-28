@@ -5,8 +5,9 @@
 
 :- use_module(courses).
 
-check_if_signed_in(Request, User)   :- http_authenticate(basic(passwd), Request, [User | _]).
-check_if_signed_in(_, _)            :- http_redirect(moved, root(signup), _).
+check_if_signed_in(_, _).
+% check_if_signed_in(Request, User)   :- http_authenticate(basic(passwd), Request, [User | _]).
+% check_if_signed_in(_, _)            :- http_redirect(moved, root(signup), _).
 
 
 link_list(Predicate, Path) -->
@@ -25,4 +26,4 @@ as_li(X, li(X)).
 
 
 uni_field_subject_to_course_name(MyUni, MyField, MySubject, CourseName) :-
-    course(MyUni, MyField, _, MySubject, CourseName, _, _, _).
+    course(MyUni, MyField, MySubject, _, _, CourseName, _, _).

@@ -2,7 +2,6 @@
 
 
 :- use_module(library(http/http_server)).
-:- use_module(library(http/http_authenticate)).
 
 :- use_module('../util/courses').
 :- use_module('../util/util').
@@ -37,8 +36,8 @@ my_course(Semester, CourseName, Prerequisites, Credits, CourseType) :-
     field_of_study(University, FieldOfStudy),
     course(University,
            FieldOfStudy,
-           Semester,
            _,
+           Semester,
            CourseName,
            Prerequisites,
            Credits,
